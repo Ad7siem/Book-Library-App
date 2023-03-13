@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>
+        Lista Książek
+    </h1>
+
+    {% if books %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Nazwa Książki</th>
+                <th scope="col">Autor</th>
+                <th scope="col">Miejsce</th>
+                <th scope="col">Kategoria</th>
+                {% if user.is_authenticated %}
+                    <th scope="col">Data Wypożyczenia</th>
+                    <th scope="col">Osoba Wypożyczająca</th>
+                {% else %}
+                    <th scope="col">Wypożyczona</th>
+                {% endif %}
+                <th scope="col">Uwagi</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            {% for book in books %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.location }}</td>
+                    <td>{{ book.category.all|join:'-' }}</td>
+                    {% if user.is_authenticated %}
+                    <td>
+                        {% if book.borrow_date %}
+                            {{ book.borrow_date }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if book.borrower %}
+                            {{ book.borrower }}
+                        {% endif %}
+                    </td>
+                    {% else %}
+                    <td>
+                        {% if book.borrower or book.borrow_date %}
+                            Tak
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td>{{ book.notes }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p> Brak książek na liście. </p>
+    {% endif %}
+{% endblock  %}

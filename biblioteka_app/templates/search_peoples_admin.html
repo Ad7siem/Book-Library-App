@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col-10">
+                <h1>
+                    Wyszukiwane: {{ searched }}
+                </h1>
+            </div>
+        </div>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    {% if peoples %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="2%"></th>
+                                    <th scope="col" class="text-start">Imię</th>
+                                    <th scope="col" class="text-start">Nazwisko</th>
+                                    <th scope="col"> Uwagi</th>
+                                    <th scope="col">Kontakt</th>
+                                    <th scope="col" class="text-end" width="12%">Edytuj/Usuń</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for people in peoples %}
+                                    <tr>
+                                        <th scope="row">{{ people.id }}</th>
+                                        <td class="text-start">{{ people.first_name }}</td>
+                                        <td class="text-start">{{ people.last_name }}</td>
+                                        <td>{{ people.note }}</td>
+                                        <td>{{ people.contact }}</td>
+                                        <td class="text-end">
+                                            <a href="{% url 'update-people' people.id %}" class="btn btn-outline-warning">Edytuj</a>
+                                            <a href="{% url 'delete-people' people.id %}" class="btn btn-outline-danger">Usuń</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        Nie znaleziono takiej osoby: {{ searched }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h3>
+            Wybacz, ale musisz być zalogowany, aby wejść na tą stronę.
+        </h3>
+        <a href="{% url 'login' %}"> Zaloguj się</a>
+    {% endif %}
+{% endblock  %}

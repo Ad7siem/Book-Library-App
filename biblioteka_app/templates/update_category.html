@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <h1>
+            Edytowanie Kategorii Książek
+        </h1>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-8">
+                    {% if categories %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="2%"></th>
+                                    <th scope="col">Nazwa Kategorii</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for category in categories %}
+                                    <tr>
+                                        <th scope="row">{{ category.id }}</th>
+                                        <td><a href="{% url 'update-category' category.id %}">{{ category.name }}</a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p> Brak kategorii na liście. </p>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    <form action="" method=POST>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Zapisz" class="btn btn-secondary">
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h3>
+            Wybacz, ale musisz być zalogowany, aby wejść na tą stronę.
+        </h3>
+        <a href="{% url 'login' %}">Zaloguj się</a>
+    {% endif %}
+{% endblock  %}

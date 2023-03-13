@@ -1,0 +1,55 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">Biblioteka</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'book-list' %}">Lista Książek</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+                <li><hr class="dropdown-divider" style="border-left: 1px solid gray; height:100%; top:0;"></li>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin-books-list' %}">Książki</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'peoples-list' %}">Osoby</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'categories-list' %}">Kategorie</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">Pobierz</a>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <a class="dropdown-item" href="{% url 'books-pdf' %}">PDF</a>
+                    <a class="dropdown-item" href="{% url 'books-text' %}">TXT</a>
+                    <a class="dropdown-item" href="{% url 'books-csv' %}">CSV</a>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <li><hr class="dropdown-divider" style="border-left: 1px solid gray; height:100%; top:0;"></li>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link">Witaj! {{ user.username|capfirst }}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            {% endif %}
+            </ul>
+            <form class="d-flex" method=POST action="{% url 'search-main' %}" role="search">
+                {% csrf_token %}
+                <input class="form-control me-2" type="search" placeholder="Wyszukiwanie Ksiązki" aria-label="Search" name="searched">
+                <button class="btn btn-outline-secondary" type="submit">Wyszukaj</button>
+            </form>
+        </div>
+    </div>
+</nav>

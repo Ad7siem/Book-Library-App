@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col-4">
+                <h1>
+                    Lista Książek - Admin
+                </h1>
+                {{ pk }}
+            </div>
+            <div class="col-6">
+                <br/>
+                <form class="d-flex" method=POST action="{% url 'search-book-admin' %}" role="search">
+                    {% csrf_token %}
+                    <input class="form-control me-2" type="search" placeholder="Wyszukaj książkę" aria-label="Search" name="searched" style="width: 70%;">
+                </form>
+            </div>
+            <div class="col-2 text-center">
+                <br/>
+                {% comment %} <a class="btn btn-outline-success" href="{% url 'add-book' %}" role="button">Dodaj Książkę</a> {% endcomment %}
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#bookAdd">
+                    Dodaj Książkę
+                </button>
+                <!-- Modal Add-->
+                <div class="modal fade" id="bookAdd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookAddLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="bookAddLabel">Dodawanie książki</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" method=POST>
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    {% if books %}
+                        <table class="table table-striped">
+                            <thead>
+                                <th scope="col"></th>
+                                <th scope="col" class="text-start">Nazwa Książki</th>
+                                <th scope="col" class="text-start">Autor</th>
+                                <th scope="col">Miejsce</th>
+                                <th scope="col">Kategoria</th>
+                                <th scope="col">Data Wypożyczenia</th>
+                                <th scope="col">Osoby Wypożyczające</th>
+                                <th scope="col">Uwagi</th>
+                                <th scope="col" class="text-center" width="12%">Edytuj/Usuń</th>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for book in books %}
+                                    <tr>
+                                        <th scope="row">{{ book.id }}</th>
+                                        <td class="text-start">{{ book.title }}</td>
+                                        <td class="text-start">{{ book.author }}</td>
+                                        <td>{{ book.location }}</td>
+                                        <td>{{ book.category.all|join:'-' }}</td>
+                                        <td>
+                                            {% if book.borrow_date %}
+                                                {{ book.borrow_date }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if book.borrower %}
+                                                {{ book.borrower}}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ book.notes }}</td>
+                                        <td class="text-center">
+                                            {% comment %} <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a> {% endcomment %}
+                                            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bookEdit">
+                                                Edytuj
+                                            </button>
+                                            <!-- Model Delete-->
+                                            <div class="modal fade" id="bookEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="bookEditLabel">Edytowanie książki</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="{% url 'update-book' book.id %}" method=POST>
+                                                                {% csrf_token %}
+                                                                {{ form.as_p }}
+                                                                <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Button trigger modal -->
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bookDelete_{{book.id}}">
+                                                Usuń
+                                            </button>
+                                            <!-- Model Delete-->
+                                            <div class="modal fade" id="bookDelete_{{book.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookDeleteLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="bookDeleteLabel">Usuwanie książki</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Czy na pewno chcesz usunąć książkę: "{{ book.title }}"?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                                            <a href="{% url 'delete-book' book.id %}" class="btn btn-outline-danger">Usuń</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p> Brak książek na liście. </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h3>
+            Wybacz, ale musisz być zalogowany/a, aby wejść na tą stronę.
+        </h3>
+        <a href="{% url 'login' %}">Zaloguj się</a>
+    {% endif %}
+{% endblock  %}
+
+
+
+{% comment %} <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#bookEdit">
+    Edytuj Książkę
+</button>
+<!-- Model Delete-->
+<div class="modal fade" id="bookEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="bookEditLabel">Dodawanie książki</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <form action="" method=POST>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Zapisz" class="btn btn-secondary">
+                    </form>
+                </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="row">
+            <div class="col-4">
+                <h1>
+                    Lista Kategorii
+                </h1>
+            </div>
+            <div class="col-6">
+                <br/>
+                <form class="d-flex" method=POST action="{% url 'search-categories-admin' %}" role="search">
+                    {% csrf_token %}
+                    <input class="form-control me-2" type="search" placeholder="Wyszukaj kategorie" aria-label="Search" name="searched" style="width: 70%;">
+                </form>
+            </div>
+            <div class="col-2 text-center">
+                <br/>
+                {% comment %} <a class="btn btn-outline-success" href="{% url 'add-category' %}" role="button">Dodaj Kategorie</a> {% endcomment %}
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#categoryAdd">
+                    Dodaj Kategorie
+                </button>
+                <!-- Modal Delete -->
+                <div class="modal fade" id="categoryAdd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoryAddLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="categoryAddLabel"> Dodawanie Kategorii</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" method=POST>
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    {% if categories %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="2%"></th>
+                                    <th scope="col" class="text-start">Nazwa Kategorii</th>
+                                    <th scope="col" class="text-center" width="12%">Edytuj/Usuń</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for category in categories %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td class="text-start">{{ category.name }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'update-category' category.id %}" class="btn btn-outline-warning">Edytuj</a>
+                                            <!-- Button trigger model -->
+                                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#categoryDelete_{{category.id}}">
+                                                Usuń
+                                            </button>
+                                            <!-- Model Delete -->
+                                            <div class="modal fade" id="categoryDelete_{{category.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoryDeleteLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="bookDeleteLabel">Usuwanie Kategorii</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Czy na pewno chcesz usunąć kategorie: "{{ category.name }}"?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                                            <a href="{% url 'delete-category' category.id %}" class="btn btn-outline-danger">Usuń</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                        </table>
+                    {% else %}
+                        <p> Brak kategorii na liście. </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+    <h3>
+        Wybacz, ale musisz być zalogowany/a, aby wejść na tą stronę.
+    </h3>
+    <a href="{% url 'login' %}">Zaloguj się</a>
+    {% endif %}
+{% endblock %}

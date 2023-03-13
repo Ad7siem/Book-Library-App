@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <h1>
+            Dodawanie Osoby
+        </h1>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-8">
+                    {% if peoples %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="2%"></th>
+                                    <th scope="col">Imię</th>
+                                    <th scope="col">Nazwisko</th>
+                                    <th scope="col">Uwagi</th>
+                                    <th scope="col">Kontakt</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for people in peoples %}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ people.first_name }}</td>
+                                        <td>{{ people.last_name }}</td>
+                                        <td>{{ people.note }}</td>
+                                        <td>{{ people.contact }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p> Brak osób na liście. </p>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    <form action="" method=POST>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Zapisz" class="btn btn-secondary">
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <h1>
+            Wybacz, ale musisz być zalogowany, aby wejść na tą stronę.
+        </h1>
+        <a href="{% url 'login' %}">Zaloguj się</a>
+    {% endif %}
+{% endblock  %}
