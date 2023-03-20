@@ -1,13 +1,79 @@
 {% extends 'base.html' %}
 {% block content %}
     {% if user.is_authenticated %}
-        <h1>
-            Edytowanie Kategorii Książek
-        </h1>
+        <div class="row">
+            <h1>
+                Edytowanie Kategorii Książek
+            </h1>
+        </div>
         <br/>
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        {{ category_index }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-10">
+                            <strong>Nazwa Kategorii:</strong> {{ category_index.name }}
+                        </div>
+                        <div class="col-2 text-center">
+                            <strong>Opcje</strong><br/>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#categoryUpdate">
+                                Edytuj
+                            </button>
+                            <!-- Modal Edit Category-->
+                            <div class="modal fade" id="categoryUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="categoryUpdateLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="categoryUpdateLabel">Edycja Kategorii</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="" method=POST>
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                {{ form.as_p }}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Codnij</button>
+                                                <input type="submit" value="Zapisz" class="btn btn-success">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#categoryDelete_{{category_index.id}}">
+                                Usuń
+                            </button>
+                            <!-- Modal Delete -->
+                            <div class="modal fade" id="categoryDelete_{{category_index.id}}" data-bs-backdrop="stativ" data-bs-keyboard="false" tabindex="-1" atia-labelledby="categoryDeleteLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="categoryDeleteLabel">Usuwanie Kategorii</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Czy na pewno chcesz usunąć kategorie: "{{ category_index.name }}"?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                            <a href="{% url 'delete-category' category_index.id %}" class="btn btn-outline-danger">Usuń</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container text-center">
             <div class="row">
-                <div class="col-8">
+                <div class="col-12">
                     {% if categories %}
                         <table class="table table-striped">
                             <thead>
@@ -28,13 +94,6 @@
                     {% else %}
                         <p> Brak kategorii na liście. </p>
                     {% endif %}
-                </div>
-                <div class="col-4">
-                    <form action="" method=POST>
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="submit" value="Zapisz" class="btn btn-secondary">
-                    </form>
                 </div>
             </div>
         </div>

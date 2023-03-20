@@ -10,7 +10,6 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
 
-from django.urls import reverse
 
 # Create Home Page
 def home(request):
@@ -92,16 +91,6 @@ def update_book(request, book_id):
                     'form':form,
                     'books':books,
                 })
-    # book_pk = get_object_or_404(ListBook, pk=book_id) -----------------------------------------------------------------Looking for a way to make the edit post function work in a "modal" style on the list page.
-    # print("co kolwiek")
-    # if request.method == "POST":
-    #     form = ListBookForm(request.POST, instance=book_pk)
-    #     if form.is_valid():
-    #         form.save()
-    #         return HttpResponseRedirect(reverse('admin-books-list'))
-    # else:
-    #     form = ListBookForm(instance=book_pk)
-    # return render(request, 'update_book.html', { 'form': form, 'book_pk': book_pk, 'ck':ck,})
 
 # Delete Book
 def delete_book(request, book_id):
@@ -308,12 +297,12 @@ def txt_book(request):
     response.writelines(lines)
     return response
 
-# Download CSV  ---------------------------------------- The file saves everything in one column. It should save each title to a separate column. / Plik zapisuje wszystko w jednej kolumnie. Powinien zapisywać każdy tytuł do oddzielnej kolumny.
+# Download CSV  ---------------------------------------- Lack of Polish characters. / Brak polskich znaków.
 def csv_book(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=book.csv'
 
-    writer = csv.writer(response, delimiter=',')
+    writer = csv.writer(response, delimiter=';')
 
     books = ListBook.objects.all()
 

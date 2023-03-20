@@ -6,7 +6,6 @@
                 <h1>
                     Lista Książek - Admin
                 </h1>
-                {{ pk }}
             </div>
             <div class="col-6">
                 <br/>
@@ -29,15 +28,16 @@
                                 <h1 class="modal-title fs-5" id="bookAddLabel">Dodawanie książki</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <form action="" method=POST>
-                                    {% csrf_token %}
-                                    {{ form.as_p }}
+                            <form action="" method=POST>
+                                <div class="modal-body">
+                                        {% csrf_token %}
+                                        {{ form.as_p }}         
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
                                     <input type="submit" value="Zapisz" class="btn btn-secondary">
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -80,8 +80,8 @@
                                         </td>
                                         <td>{{ book.notes }}</td>
                                         <td class="text-center">
-                                            {% comment %} <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a> {% endcomment %}
-                                            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bookEdit">
+                                            <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a> 
+                                            {% comment %} <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bookEdit" data-url="{% url 'edit-book' book.id %}">
                                                 Edytuj
                                             </button>
                                             <!-- Model Delete-->
@@ -103,7 +103,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> {% endcomment %}
                                             <!-- Button trigger modal -->
                                             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bookDelete_{{book.id}}">
                                                 Usuń
@@ -144,29 +144,3 @@
         <a href="{% url 'login' %}">Zaloguj się</a>
     {% endif %}
 {% endblock  %}
-
-
-
-{% comment %} <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#bookEdit">
-    Edytuj Książkę
-</button>
-<!-- Model Delete-->
-<div class="modal fade" id="bookEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="bookEditLabel">Dodawanie książki</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-                <div class="modal-body">
-                    <form action="" method=POST>
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="submit" value="Zapisz" class="btn btn-secondary">
-                    </form>
-                </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
-</div> {% endcomment %}

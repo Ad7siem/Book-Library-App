@@ -1,102 +1,148 @@
 {% extends 'base.html' %}
 {% block content %}
     {% if user.is_authenticated %}
-    <h1>
-        Edytowanie Książki
-    </h1>
-    <br/>
-    <div class="container text-center">
         <div class="row">
-            <div class="col-8">
-                {% if books %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col" width="2%"></th>
-                                <th scope="col">Nazwa Książki</th>
-                                <th scope="col">Autor</th>
-                                <th scope="col">Miejsca</th>
-                                <th scope="col">Kategoria</th>
-                                <th scope="col">Data Wypożyczenia</th>
-                                <th scope="col">Osoba Wypożyczająca</th>
-                                <th scope="col">Uwagi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-group-divider">
-                            {% for book in books %}
-                                <tr>
-                                    <th scope="row">{{ book.id }}</th>
-                                    <td><a href="{% url 'update-book' book.id %}">{{ book.title }}</a></td>
-                                    <td>{{ book.author }}</td>
-                                    <td>{{ book.location }}</td>
-                                    <td>{{ book.category.all|join:'-'}}</td>
-                                    <td>
-                                        {% if book.borrow_date %}
-                                            {{ book.borrow_date }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if book.borrower %}
-                                            {{ book.borrower }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if book.notes|length > 20 %}
-                                            {{ book.notes|slice:":20"}}...
-                                        {% else %}
-                                            {{ book.notes }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p> Brak książek na liście. </p>
-                {% endif %}
+            <div class="col-10">
+                <h1>
+                    Edytuj Książkę
+                </h1>
             </div>
-            <div class="col-4">
-                <form action="" method=POST>
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="submit" value="Zapisz" class="btn btn-secondary">
-                </form>
+            <div class="col-2 text-center">
             </div>
         </div>
-    </div>
+        <br/>
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        {{ book_index }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-3">
+                            <strong>Tytuł:</strong> {{ book_index.title }}<br/>
+                            <strong>Autor:</strong> {{ book_index.author }}<br/>
+                            <strong>Kategoria:</strong> {{ book_index.category.all|join:'-' }}
+                        </div>
+                        <div class="col-4">
+                            <strong>Miejsce:</strong> {{ book_index.location }}<br/>
+                            <strong>Data Wypożyczenia:</strong> {{ book_index.borrow_date }}<br/>
+                            <strong>Osoby Wypożyczająca:</strong> {{ book_index.borrower }}
+                        </div>
+                        <div class="col-3">
+                            <strong>Uwagi:</strong><br/>
+                            <div class="card">
+                                <div class="card-body">
+                                    {{ book_index.notes }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2 text-center">
+                            <strong>Opcje</strong><br/>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#bookUpdate">
+                                Edytuj
+                            </button>
+                            <!-- Modal Edit Book-->
+                            <div class="modal fade" id="bookUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookUpdateLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="bookUpdateLabel">Edycja książki</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="" method=POST>
+                                            {% csrf_token %}
+                                            <div class="modal-body">   
+                                                {{ form.as_p }}         
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                                <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#bookDelete_{{book_index.id}}">
+                                Usuń
+                            </button>
+                            <!-- Modal Delete-->
+                            <div class="modal fade" id="bookDelete_{{book_index.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookDeleteLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="bookDeleteLabel">Usuwanie książki</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Czy na pewno chcesz usunąć książkę: "{{ book_index.title }}"?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                            <a href="{% url 'delete-book' book_index.id %}" class="btn btn-outline-danger">Usuń</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    {% if books %}
+                        <table class="table table-striped">
+                            <thead>
+                                <th scope="col"></th>
+                                <th scope="col" class="text-start">Nazwa Książki</th>
+                                <th scope="col" class="text-start">Autor</th>
+                                <th scope="col">Miejsce</th>
+                                <th scope="col">Kategoria</th>
+                                <th scope="col">Data Wypożyczenia</th>
+                                <th scope="col">Osoby Wypożyczające</th>
+                                <th scope="col">Uwagi</th>
+                                <th scope="col" class="text-center" width="8%">Edytuj</th>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                {% for book in books %}
+                                    <tr>
+                                        <th scope="row">{{ book.id }}</th>
+                                        <td class="text-start">{{ book.title }}</td>
+                                        <td class="text-start">{{ book.author }}</td>
+                                        <td>{{ book.location }}</td>
+                                        <td>{{ book.category.all|join:'-' }}</td>
+                                        <td>
+                                            {% if book.borrow_date %}
+                                                {{ book.borrow_date }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if book.borrower %}
+                                                {{ book.borrower}}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ book.notes }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a> 
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p> Brak książek na liście. </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     {% else %}
         <h3>
-            Wybacz, ale musisz być zalogowany, aby wejść na tą stronę.
+            Wybacz, ale musisz być zalogowany/a, aby wejść na tą stronę.
         </h3>
         <a href="{% url 'login' %}">Zaloguj się</a>
     {% endif %}
 {% endblock  %}
-
-{% comment %} <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#bookEdit">
-    Edytuj Książkę
-</button>
-<!-- Model Delete-->
-<div class="modal fade" id="bookEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="bookEditLabel">Dodawanie książki</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-                <div class="modal-body">
-                    <form action="" method=POST>
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="submit" value="Zapisz" class="btn btn-secondary">
-                        {{ form.media }}
-                    </form>
-                </div>
-            <div class="modal-footer">
-            </div>
-        </div>
-    </div>
-</div> {% endcomment %}
-
-<div class="modal-dialog modal-lg" role="document">
-    <form action=""
-</div>

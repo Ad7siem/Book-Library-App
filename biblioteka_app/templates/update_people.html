@@ -1,32 +1,124 @@
 {% extends 'base.html' %}
 {% block content %}
     {% if user.is_authenticated %}
-        <h1>
-            Edytowanie Osób
-        </h1>
+        <div class="row">
+            <div class="col-10">
+                <h1>
+                    Edytowanie Osób
+                </h1>
+            </div>
+            <div class="col-2">
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        {{ people_index }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-3">
+                            <strong>Imię:</strong> {{ people_index.first_name }}<br/>
+                            <strong>Nazwisko:</strong> {{ people_index.last_name }}<br/>
+                        </div>
+                        <div class="col-4">
+                            <strong>Uwagi:</strong><br/>
+                            <div class="card">
+                                <div class="card-body">
+                                    {{ people_index.note }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <strong>Kontakt:</strong><br/>
+                            <div class="card">
+                                <div class="card-body">
+                                    {{people_index.contact }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2 text-center">
+                            <strong>Opcje</strong><br/>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#peopleUpdate">
+                                Edytuj
+                            </button>
+                            <!-- Modal Edit People -->
+                            <div class="modal fade" id="peopleUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="peopleUpdateLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="peopleUpdateLabel">Edytuj Dane Osoby</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                    </div>
+                                    <form action="" method=POST>
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            {{ form.as_p }}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                            <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#peopleDelete">
+                                Usuń
+                            </button>
+                            <!-- Modal Delete -->
+                            <div class="modal fade" id="peopleDelete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="peopleDeleteLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="peopleDeleteLabel">Usuwanie osoby z listy</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Czy na pewno chcesz usunąć osobę: "{{ people_index }}"?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                            <a href="{% url 'delete-people' people_index.id %}" class="btn btn-outline-danger">Usuń</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <br/>
         <div class="container text-center">
             <div class="row">
-                <div class="col-8">
+                <div class="col-12">
                     {% if peoples %}
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th scope="col" width="2%"></th>
-                                    <th scope="col">Imię</th>
-                                    <th scope="col">Nazwisko</th>
+                                    <th scope="col" class="text-start">Imię</th>
+                                    <th scope="col" class="text-start">Nazwisko</th>
                                     <th scope="col">Uwagi</th>
                                     <th scope="col">Kontakt</th>
+                                    <th scope="col" class="text-center" width="8%">Edytuj</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
                                 {% for people in peoples %}
                                     <tr>
                                         <th scope="row">{{ people.id }}</th>
-                                        <td><a href="{% url 'update-people' people.id %}">{{ people.first_name }}</a></td>
-                                        <td>{{ people.last_name }}</td>
+                                        <td class="text-start">{{ people.first_name }}</td>
+                                        <td class="text-start">{{ people.last_name }}</td>
                                         <td>{{ people.note }}</td>
                                         <td>{{ people.contact }}</td>
+                                        <td class="text-center">
+                                            <a href="{% url 'update-people' people.id %}" class="btn btn-outline-warning" type="button">Edytuj</a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -34,13 +126,6 @@
                     {% else %}
                         <p> Brak osób na liście. </p>
                     {% endif %}
-                </div>
-                <div class="col-4">
-                    <form action="" method=POST>
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="submit" value="Zapisz" class="btn btn-secondary">
-                    </form>
                 </div>
             </div>
         </div>
