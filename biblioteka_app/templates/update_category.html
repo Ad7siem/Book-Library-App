@@ -80,16 +80,41 @@
                                 <tr>
                                     <th scope="col" width="2%"></th>
                                     <th scope="col">Nazwa Kategorii</th>
+                                    <th scope="col" class="text-center" width="8%">Edytuj</th>
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
-                                {% for category in categories %}
+                                {% for category in list_categories %}
                                     <tr>
                                         <th scope="row">{{ category.id }}</th>
-                                        <td><a href="{% url 'update-category' category.id %}">{{ category.name }}</a></td>
+                                        <td>{{ category.name}}</td>
+                                        <td>
+                                            <a href="{% url 'update-category' category.id %}" class="btn btn-outline-warning" type="button">Edytuj</a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                            <caption>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% if list_categories.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1">&laquo</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for i in nums %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if list_categories.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ list_categories.paginator.num_pages}}">&raquo</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </caption>
                         </table>
                     {% else %}
                         <p> Brak kategorii na liście. </p>

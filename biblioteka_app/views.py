@@ -10,13 +10,15 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
 
+from django.utils.encoding import smart_str
+from django.core.paginator import Paginator
 
-# Create Home Page
+### Create Home Page
 def home(request):
     return render(request, 'home.html', {})
 
 ########################### USER ###########################
-# Create Login
+### Create Login
 def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -32,21 +34,44 @@ def login_user(request):
     else:
         return render(request, 'login.html', {})
 
-# Create Logout
+### Create Logout
 def logout_user(request):
     logout(request)
     messages.success(request, ("Wylogowano!"))
     return redirect('home')
 
 ########################### BOOK LIST ###########################
-# Show Book List
+### Show Book List
 def book_list(request):
+    # Access to all books saved in the database.
     books = ListBook.objects.all()
-    return render(request, 'book_list.html', {'books': books})
 
-# Show Admin Book List and Add, Edit, Deleted Buttons
+    # Creating pagination from all books in the database.
+    p = Paginator(books, 10)
+    page = request.GET.get('page')
+    list_book = p.get_page(page)
+    nums = "a" * list_book.paginator.num_pages
+
+    # Rendering a page with function variables.
+    return render(request, 'book_list.html', 
+                {
+                    'books': books,
+                    'list_book': list_book,
+                    'nums': nums,
+                })
+
+### Show Admin Book List and Add, Deleted Buttons
 def admin_book_list(request):
+    # Access to all books saved in the database.
     admin_books = ListBook.objects.all()
+
+    # Creating pagination from all books in the database.
+    p = Paginator(admin_books, 10)
+    page = request.GET.get('page')
+    list_book = p.get_page(page)
+    nums = "a" * list_book.paginator.num_pages
+
+    # Creating a form object.
     if request.method == "POST":
         form = ListBookForm(request.POST)
         if form.is_valid():
@@ -56,43 +81,49 @@ def admin_book_list(request):
     else:
         form = ListBookForm
 
+    # Rendering a page with function variables.
     return render(request, 'admin_books_list.html', 
                 {
                     'books': admin_books, 
                     'form': form,
+                    'list_book': list_book,
+                    'nums': nums,
                 })
 
-# # Add Book to List  --------------------------------------------------------------------------------- Most likely, the book adding function will be removed.
-# def add_book(request):
-#     books = ListBook.objects.all()
-#     if request.method == "POST":
-#         form = ListBookForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, ("Książka została dodana do spisu"))
-#             return redirect('add-book')
-#     else:
-#         form = ListBookForm
-#     return render(request, 'add_book.html', {'form': form, 'books': books })
-
-# Update Book
+### Update Book
 def update_book(request, book_id):
+    # Accesz to all books saved in the database.
     books = ListBook.objects.all()
+
+    # Creating pagination from all books in the database.
+    p = Paginator(books, 8)
+    page = request.GET.get('page')
+    list_book = p.get_page(page)
+    nums = "a" * list_book.paginator.num_pages
+
+    # Creating a form for editing a book.
     book_index = ListBook.objects.get(pk=book_id)
-    form = ListBookForm(request.POST or None, instance=book_index)
-    if form.is_valid():
-        form.save()
-        messages.success(request, ("Dane książki zostały zmienione"))
-        return redirect('admin-books-list')
-            
+    # form = ListBookForm(request.POST or None, instance=book_index)
+    if request.method == "POST":
+        form = ListBookForm(request.POST, instance=book_index)
+        if form.is_valid():
+            form.save()
+            messages.success(request, ("Dane książki zostały zmienione"))
+            return redirect('admin-books-list')
+    else:
+        form = ListBookForm(instance=book_index)
+
+    # Rendering a page with function variables.   
     return render(request, 'update_book.html', 
                 {
                     'book_index':book_index,
                     'form':form,
                     'books':books,
+                    'list_book': list_book,
+                    'nums': nums,
                 })
 
-# Delete Book
+### Delete Book
 def delete_book(request, book_id):
     book = ListBook.objects.get(pk=book_id)
     book.delete()
@@ -100,9 +131,18 @@ def delete_book(request, book_id):
     return redirect('admin-books-list')
 
 ########################### People List ###########################
-# Show List People
+### Show List People
 def people_list(request):
+    # Access to all People saved in the database.
     peoples = ListPeople.objects.all()
+
+    # Creating paginatrion from all people in the database.
+    p = Paginator(peoples, 10)
+    page = request.GET.get('page')
+    list_peoples = p.get_page(page)
+    nums = "a" * list_peoples.paginator.num_pages
+
+    # Creating a form object
     if request.method == "POST":
         form = ListPeopleForm(request.POST)
         if form.is_valid():
@@ -111,39 +151,49 @@ def people_list(request):
             return redirect('peoples-list')
     else:
         form = ListPeopleForm
-    return render(request, 'peoples_list.html', {'peoples':peoples, 'form': form, })
 
-# # Add People to List ---------------------------------------------------------------- Most likely, the person adding function will be removed.
-# def add_people(request):
-#     peoples = ListPeople.objects.all()
-#     if request.method == "POST":
-#         form = ListPeopleForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, ("Osoba została dodana do list"))
-#             return redirect('add-people')
-#     else:
-#         form = ListPeopleForm
-#     return render(request, 'add_people.html', {'form':form, 'peoples':peoples, })
+    # Rendering a page with function variables.
+    return render(request, 'peoples_list.html', 
+                {
+                    'peoples':peoples, 
+                    'form': form, 
+                    'list_peoples': list_peoples,
+                    'nums': nums,
+                })
 
-# Update People
+### Update People
 def update_people(request, people_id):
+    # Access to all peoples saved in the database.
     peoples = ListPeople.objects.all()
-    people_index = ListPeople.objects.get(pk=people_id)
-    form = ListPeopleForm(request.POST or None, instance=people_index)
-    if form.is_valid():
-        form.save()
-        messages.success(request, ("Dane osoby zostały zmienione"))
-        return redirect('peoples-list')
 
+    # Creating pagination from all peoples in the database.
+    p = Paginator(peoples, 8)
+    page = request.GET.get('page')
+    list_peoples = p.get_page(page)
+    nums = "a" * list_peoples.paginator.num_pages
+
+    # Creating a form for editing a people.
+    people_index = ListPeople.objects.get(pk=people_id)
+    if request.method == "POST":
+        form = ListPeopleForm(request.POST, instance=people_index)
+        if form.is_valid():
+            form.save()
+            messages.success(request, ("Dane osoby zostały zmienione"))
+            return redirect('peoples-list')
+    else:
+        form = ListPeopleForm(instance=people_index)
+
+    # Rendering a page with function variables.
     return render(request, 'update_people.html', 
                 {
                     'people_index':people_index,
                     'form':form,
                     'peoples':peoples,
+                    'list_peoples': list_peoples,
+                    'nums': nums,
                 }) 
 
-# Delete People
+### Delete People
 def delete_people(request, people_id):
     people = ListPeople.objects.get(pk=people_id)
     people.delete()
@@ -151,9 +201,18 @@ def delete_people(request, people_id):
     return redirect('peoples-list')
 
 ########################### Category Book List ###########################
-# Show List Categories
+### Show List Categories
 def categories_list(request):
+    # Access to all categories saved in the database.
     categories = ListBookCategory.objects.all()
+
+    # Creating pagination from all categories in the database.
+    p = Paginator(categories, 10)
+    page = request.GET.get('page')
+    list_categories = p.get_page(page)
+    nums = "a" * list_categories.paginator.num_pages
+
+    # Creating a form object.
     if request.method == "POST":
         form = ListBookCategoryForm(request.POST)
         if form.is_valid():
@@ -162,39 +221,49 @@ def categories_list(request):
             return redirect('categories-list')
     else:
         form = ListBookCategoryForm
-    return render(request, 'categories_list.html', {'categories': categories, 'form': form,})
 
-# # Add Category Book to List --------------------------------------------------- Most likely, the category adding function will be removed.
-# def add_category(request):
-#     categories = ListBookCategory.objects.all()
-#     if request.method == "POST":
-#         form = ListBookCategoryForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, ("Kategoria Książki została dodana do listy"))
-#             return redirect('add-category')
-#     else:
-#         form = ListBookCategoryForm
-#     return render(request, 'add_category.html', {'form': form, 'categories': categories, })
+    # Rendering a page with function variables.
+    return render(request, 'categories_list.html', 
+                {
+                    'categories': categories, 
+                    'form': form,
+                    'list_categories': list_categories,
+                    'nums': nums,
+                })
 
-# Update Category
+### Update Category
 def update_category(request, category_id):
+    # Access to all categories saved in the database
     categories = ListBookCategory.objects.all()
+
+    # Creating pagination from all categories in the database.
+    p = Paginator(categories, 8)
+    page = request.GET.get('page')
+    list_categories = p.get_page(page)
+    nums = "a" * list_categories.paginator.num_pages
+
+    # Creating a form for editing a category
     category_index = ListBookCategory.objects.get(pk=category_id)
-    form = ListBookCategoryForm(request.POST or None, instance=category_index)
-    if form.is_valid():
-        form.save()
-        messages.success(request, ("Nazwa Kategorii została zmieniona"))
-        return redirect('categories-list')
+    if request.method == "POST":
+        form = ListBookCategoryForm(request.POST, instance=category_index)
+        if form.is_valid():
+            form.save()
+            messages.success(request, ("Nazwa Kategorii została zmieniona"))
+            return redirect('categories-list')
+    else:
+        form = ListBookCategoryForm(instance=category_index)
     
+    # Rendring a page with function variables.
     return render(request, 'update_category.html',
                 {
                     'category_index':category_index,
                     'form':form,
                     'categories':categories,
+                    'list_categories': list_categories,
+                    'nums': nums,
                 })
 
-# Delete Category
+### Delete Category
 def delete_category(request, category_id):
     category = ListBookCategory.objects.get(pk=category_id)
     category.delete()
@@ -202,77 +271,131 @@ def delete_category(request, category_id):
     return redirect('categories-list')
 
 ########################### Search ###########################
-# Searching for book titles or categories
+### Searching for book titles or categories
 def search_main(request):
+    #
     if request.method == "POST":
         searched = request.POST['searched']
-        books = ListBook.objects.filter(Q(title__icontains=searched) | Q(category__name__icontains=searched)).distinct()
-        return render(request, 'search_main.html',
-                    {
-                        'searched': searched,
-                        'books': books,
-                    })
+        request.session['searched'] = searched
     else:
-        return redirect('book-list')
-    
-# Searching for book - Admin
-def search_book_admin(request):
-    if request.method == "POST":
-        searched = request.POST['searched']
-        books = ListBook.objects.filter(title__icontains=searched)
-        return render(request, 'search_books_admin.html',
-                    {
-                        'searched': searched,
-                        'books': books,
-                    })
-    else:
-        return redirect('admin-books-list')
+        searched = request.session.get('searched', '')
 
-# Searching for people - Admin
-def search_people_admin(request):
-    if request.method == "POST":
-        searched = request.POST['searched']
-        peoples = ListPeople.objects.filter(Q(first_name__icontains=searched) | Q(last_name__icontains=searched))
-        return render(request, 'search_peoples_admin.html',
-                    {
-                        'searched': searched,
-                        'peoples': peoples,
-                    })
-    else:
-        return redirect('people-list')
+    books = ListBook.objects.filter(Q(title__icontains=searched) | Q(category__name__icontains=searched)).order_by('id').distinct()
+
+    # Creating pagination from searched books in the database.
+    p = Paginator(books, 10)
+    page = request.GET.get('page')
+    list_books = p.get_page(page)
+    nums = "a" * list_books.paginator.num_pages
+
+    # Rendering a page with function variables.
+    return render(request, 'search_main.html',
+                {
+                    'searched': searched,
+                    'books': list_books,
+                    'list_books': list_books,
+                    'nums': nums,
+                })
+
     
-# Searching for category - Admin
-def search_categories_admin(request):
+### Searching for book - Admin
+def search_book_admin(request):
+    #
     if request.method == "POST":
         searched = request.POST['searched']
-        categories = ListBookCategory.objects.filter(name__icontains=searched)
-        return render(request, 'search_categories_admin.html', 
-                    {
-                        'searched': searched,
-                        'categories': categories,
-                    })
+        request.session['searched'] = searched
     else:
-        return redirect('categories-list')
+        searched = request.session.get('searched', '')
+
+    books = ListBook.objects.filter(title__icontains=searched)
+
+    # Creating pagination from searched books in the database.
+    p = Paginator(books, 10)
+    page = request.GET.get('page')
+    list_books = p.get_page(page) 
+    nums = "a" * list_books.paginator.num_pages
+
+    # Rendering a page with function variables.
+    return render(request, 'search_books_admin.html',
+                {
+                    'searched': searched,
+                    'books': books,
+                    'list_books': list_books,
+                    'nums': nums,
+                })
+
+### Searching for people - Admin
+def search_people_admin(request):
+    #
+    if request.method == "POST":
+        searched = request.POST['searched']
+        request.session['searched'] = searched
+    else:
+        searched = request.session.get('searched', '')
+
+    peoples = ListPeople.objects.filter(Q(first_name__icontains=searched) | Q(last_name__icontains=searched))
+
+    # Creating pagination from searched peoples in the database.
+    p = Paginator(peoples, 10)
+    page = request.GET.get('page')
+    list_peoples = p.get_page(page)
+    nums = "a" * list_peoples.paginator.num_pages
+
+    # Rendering a page with function variables.
+    return render(request, 'search_peoples_admin.html',
+                {
+                    'searched': searched,
+                    'peoples': peoples,
+                    'list_peoples': list_peoples,
+                    'nums': nums,
+                })
+
+    
+### Searching for category - Admin
+def search_categories_admin(request):
+    #
+    if request.method == "POST":
+        searched = request.POST['searched']
+        request.session['searched'] = searched
+    else:
+        searched = request.session.get('searched', '')
+
+    categories = ListBookCategory.objects.filter(name__icontains=searched)
+
+    # Creating pagination from searched category in the database.
+    p = Paginator(categories, 10)
+    page = request.GET.get('page')
+    list_categories = p.get_page(page)
+    nums = "a" * list_categories.paginator.num_pages
+
+    # Rendering a page with function variables.
+    return render(request, 'search_categories_admin.html', 
+                {
+                    'searched': searched,
+                    'categories': categories,
+                    'list_categories': list_categories,
+                    'nums': nums,
+                })
 
 
 ########################### Download File ###########################
-# Download PDF   ------------------------- Lack of Polish characters. / Brak polskich znaków.
+### Download PDF   ------------------------- Lack of Polish characters. / Brak polskich znaków.
 def pdf_book(response):
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=letter, bottomup=0)
     textob = c.beginText()
     textob.setTextOrigin(inch, inch)
-    textob.setFont("Times-Roman", 14)
+    textob.setFont("Helvetica", 14)
     
     lines = []
     books = ListBook.objects.all()
 
     for book in books:
-        lines.append(book.title)
-        lines.append(book.author)
-        lines.append(book.location)
-        lines.append(', '.join(book.category.all().values_list('name', flat=True)))
-        lines.append(book.notes)
+        lines.append(smart_str(book.title))
+        lines.append(smart_str(book.author))
+        lines.append(smart_str(book.location))
+        lines.append(smart_str(', '.join(book.category.all().values_list('name', flat=True))))
+        lines.append(smart_str(book.notes))
         lines.append("================================")
 
     for line in lines:
@@ -285,7 +408,7 @@ def pdf_book(response):
 
     return FileResponse(buf, as_attachment=True, filename='list_books.pdf')
 
-# Download TXT
+### Download TXT
 def txt_book(request):
     response = HttpResponse(content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename=listbook.txt'
@@ -297,7 +420,7 @@ def txt_book(request):
     response.writelines(lines)
     return response
 
-# Download CSV  ---------------------------------------- Lack of Polish characters. / Brak polskich znaków.
+### Download CSV  ---------------------------------------- Lack of Polish characters. / Brak polskich znaków.
 def csv_book(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=book.csv'

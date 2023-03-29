@@ -13,75 +13,71 @@
         <br/>
         <div class="row">
             <div class="card">
-                <div class="card-header">
-                    <h3>
-                        {{ book_index }}
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-3">
-                            <strong>Tytuł:</strong> {{ book_index.title }}<br/>
-                            <strong>Autor:</strong> {{ book_index.author }}<br/>
-                            <strong>Kategoria:</strong> {{ book_index.category.all|join:'-' }}
-                        </div>
-                        <div class="col-4">
-                            <strong>Miejsce:</strong> {{ book_index.location }}<br/>
-                            <strong>Data Wypożyczenia:</strong> {{ book_index.borrow_date }}<br/>
-                            <strong>Osoby Wypożyczająca:</strong> {{ book_index.borrower }}
-                        </div>
-                        <div class="col-3">
-                            <strong>Uwagi:</strong><br/>
-                            <div class="card">
-                                <div class="card-body">
-                                    {{ book_index.notes }}
-                                </div>
+                <h3 class="card-header">
+                    {{ book_index }}
+                </h3>
+                <div class="card-body row">
+                    <div class="col-3">
+                        <strong>Tytuł:</strong> {{ book_index.title }}<br/>
+                        <strong>Autor:</strong> {{ book_index.author }}<br/>
+                        <strong>Kategoria:</strong> {{ book_index.category.all|join:'-' }}
+                    </div>
+                    <div class="col-4">
+                        <strong>Miejsce:</strong> {{ book_index.location }}<br/>
+                        <strong>Data Wypożyczenia:</strong> {{ book_index.borrow_date }}<br/>
+                        <strong>Osoby Wypożyczająca:</strong> {{ book_index.borrower }}
+                    </div>
+                    <div class="col-3">
+                        <strong>Uwagi:</strong><br/>
+                        <div class="card">
+                            <div class="card-body">
+                                {{ book_index.notes }}
                             </div>
                         </div>
-                        <div class="col-2 text-center">
-                            <strong>Opcje</strong><br/>
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#bookUpdate">
-                                Edytuj
-                            </button>
-                            <!-- Modal Edit Book-->
-                            <div class="modal fade" id="bookUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookUpdateLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="bookUpdateLabel">Edycja książki</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="" method=POST>
-                                            {% csrf_token %}
-                                            <div class="modal-body">   
-                                                {{ form.as_p }}         
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
-                                                <input type="submit" value="Zapisz" class="btn btn-secondary">
-                                            </div>
-                                        </form>
+                    </div>
+                    <div class="col-2 text-center">
+                        <strong>Opcje</strong><br/>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#bookUpdate">
+                            Edytuj
+                        </button>
+                        <!-- Modal Edit Book-->
+                        <div class="modal fade" id="bookUpdate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookUpdateLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="bookUpdateLabel">Edycja książki</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#bookDelete_{{book_index.id}}">
-                                Usuń
-                            </button>
-                            <!-- Modal Delete-->
-                            <div class="modal fade" id="bookDelete_{{book_index.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookDeleteLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="bookDeleteLabel">Usuwanie książki</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            Czy na pewno chcesz usunąć książkę: "{{ book_index.title }}"?
+                                    <form action="" method=POST>
+                                        {% csrf_token %}
+                                        <div class="modal-body">   
+                                            {{ form.as_p }}         
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
-                                            <a href="{% url 'delete-book' book_index.id %}" class="btn btn-outline-danger">Usuń</a>
+                                            <input type="submit" value="Zapisz" class="btn btn-secondary">
                                         </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#bookDelete_{{book_index.id}}">
+                            Usuń
+                        </button>
+                        <!-- Modal Delete-->
+                        <div class="modal fade" id="bookDelete_{{book_index.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookDeleteLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="bookDeleteLabel">Usuwanie książki</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Czy na pewno chcesz usunąć książkę: "{{ book_index.title }}"?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                        <a href="{% url 'delete-book' book_index.id %}" class="btn btn-outline-danger">Usuń</a>
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +104,7 @@
                                 <th scope="col" class="text-center" width="8%">Edytuj</th>
                             </thead>
                             <tbody class="table-group-divider">
-                                {% for book in books %}
+                                {% for book in list_book %}
                                     <tr>
                                         <th scope="row">{{ book.id }}</th>
                                         <td class="text-start">{{ book.title }}</td>
@@ -132,6 +128,27 @@
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                            <caption>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% if list_book.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1">&laquo</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for i in nums %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ forloop.counter }}">{{forloop.counter}}</a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if list_book.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ list_book.paginator.num_pages }}">&raquo</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </caption>
                         </table>
                     {% else %}
                         <p> Brak książek na liście. </p>

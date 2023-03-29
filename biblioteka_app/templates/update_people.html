@@ -53,17 +53,17 @@
                                             <h1 class="modal-title fs-5" id="peopleUpdateLabel">Edytuj Dane Osoby</h1>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
+                                        <form action="" method=POST>
+                                            {% csrf_token %}
+                                            <div class="modal-body">
+                                                {{ form.as_p }}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                                <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                            </div>
+                                        </form>
                                     </div>
-                                    <form action="" method=POST>
-                                        {% csrf_token %}
-                                        <div class="modal-body">
-                                            {{ form.as_p }}
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
-                                            <input type="submit" value="Zapisz" class="btn btn-secondary">
-                                        </div>
-                                    </form>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#peopleDelete">
@@ -109,7 +109,7 @@
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
-                                {% for people in peoples %}
+                                {% for people in list_peoples %}
                                     <tr>
                                         <th scope="row">{{ people.id }}</th>
                                         <td class="text-start">{{ people.first_name }}</td>
@@ -122,6 +122,27 @@
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                            <caption>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% if list_peoples.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1">&laquo</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for i in nums %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if list_peoples.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ list_people.paginatior.num_pages }}">&raquo</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </caption>
                         </table>
                     {% else %}
                         <p> Brak osób na liście. </p>

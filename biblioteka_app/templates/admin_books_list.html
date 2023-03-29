@@ -29,9 +29,9 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form action="" method=POST>
+                                {% csrf_token %}
                                 <div class="modal-body">
-                                        {% csrf_token %}
-                                        {{ form.as_p }}         
+                                    {{ form.as_p }}         
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
@@ -57,11 +57,11 @@
                                 <th scope="col">Kategoria</th>
                                 <th scope="col">Data Wypożyczenia</th>
                                 <th scope="col">Osoby Wypożyczające</th>
-                                <th scope="col">Uwagi</th>
+                                <th scope="col" width="20%">Uwagi</th>
                                 <th scope="col" class="text-center" width="12%">Edytuj/Usuń</th>
                             </thead>
                             <tbody class="table-group-divider">
-                                {% for book in books %}
+                                {% for book in list_book %}
                                     <tr>
                                         <th scope="row">{{ book.id }}</th>
                                         <td class="text-start">{{ book.title }}</td>
@@ -78,24 +78,27 @@
                                                 {{ book.borrower}}
                                             {% endif %}
                                         </td>
-                                        <td>{{ book.notes }}</td>
+                                        <td>{{ book.notes|truncatechars:30 }}</td>
                                         <td class="text-center">
-                                            <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a> 
-                                            {% comment %} <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bookEdit" data-url="{% url 'edit-book' book.id %}">
-                                                Edytuj
+                                            <a href="{% url 'update-book' book.id %}" class="btn btn-outline-warning" type="button">Edytuj</a>
+                                            {% comment %} <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#bookEdit{{book.id}}" data-url="{% url 'update-book' book.id %}">
+                                                {{book.id}}
                                             </button>
                                             <!-- Model Delete-->
-                                            <div class="modal fade" id="bookEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
+                                            <div class="modal fade" id="bookEdit{{book.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bookEditLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="bookEditLabel">Edytowanie książki</h1>
+                                                            <h1 class="modal-title fs-5" id="bookEditLabel">Edytowanie książki {{book.id}}</h1>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <form action="{% url 'update-book' book.id %}" method=POST>
+                                                            <form action="{% url 'update-book' book.id %}" method="POST">
                                                                 {% csrf_token %}
-                                                                {{ form.as_p }}
+                                                                <div class="form-group">
+                                                                    <label for="{{ form.title.id_for_label}}">Tytuł:</label>
+                                                                    {{ form.title }}
+                                                                </div>
                                                                 <input type="submit" value="Zapisz" class="btn btn-secondary">
                                                             </form>
                                                         </div>
@@ -130,6 +133,27 @@
                                     </tr>
                                 {% endfor %}
                             </tbody>
+                            <caption>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% if list_book.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1">&laquo</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for i in nums %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if list_book.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ list_book.paginator.num_pages }}">&raquo</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </caption>
                         </table>
                     {% else %}
                         <p> Brak książek na liście. </p>

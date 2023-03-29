@@ -29,9 +29,9 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form action="" method=POST>
+                                {% csrf_token %}
                                 <div class="modal-body">
-                                        {% csrf_token %}
-                                        {{ form.as_p }}                                                        
+                                    {{ form.as_p }}                                                        
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
@@ -57,7 +57,7 @@
                                 </tr>
                             </thead>
                             <tbody class="table-group-divider">
-                                {% for category in categories %}
+                                {% for category in list_categories %}
                                     <tr>
                                         <th scope="row">{{ forloop.counter }}</th>
                                         <td class="text-start">{{ category.name }}</td>
@@ -88,6 +88,28 @@
                                         </td>
                                     </tr>
                                 {% endfor %}
+                            </tbody>
+                            <caption>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% if list_categories.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page=1">&laquo</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for i in nums %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                            </li>
+                                        {% endfor %}
+                                        {% if list_categories.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ list_categories.paginator.num_pages }}">&raquo</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </caption>
                         </table>
                     {% else %}
                         <p> Brak kategorii na liście. </p>

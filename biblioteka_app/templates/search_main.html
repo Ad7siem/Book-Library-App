@@ -23,7 +23,7 @@
                 </tr>
             </thead>
             <tbody class="table-group-divider">
-                {% for book in books %}
+                {% for book in list_books %}
                     <tr>
                         <th scope="row">{{ book.id }}</th>
                         <td>{{ book.title }}</td>
@@ -52,6 +52,27 @@
                     </tr>
                 {% endfor %}
             </tbody>
+            <caption>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        {% if list_books.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo</a>
+                            </li>
+                        {% endif %}
+                        {% for i in nums %}
+                            <li class="{% if list_books.number == forloop.counter %}active{% endif %}">
+                                <a class="page-link" href="?page={{ forloop.counter }}&searched={{ searched }}">{{forloop.counter}}</a>
+                            </li>
+                        {% endfor %}
+                        {% if list_books.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ list_books.paginator.num_pages }}">&raquo</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </caption>
         </table>
     {% else %}
         <p> Brak takiej książki </p>

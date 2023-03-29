@@ -8,28 +8,28 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th scope="col"></th>
-                <th scope="col">Nazwa Książki</th>
-                <th scope="col">Autor</th>
-                <th scope="col">Miejsce</th>
-                <th scope="col">Kategoria</th>
+                <th scope="col" width="2%"></th>
+                <th scope="col" width="14%">Nazwa Książki</th>
+                <th scope="col" width="14%">Autor</th>
+                <th scope="col" width="5%">Miejsce</th>
+                <th scope="col" class="text-center" width="9%">Kategoria</th>
                 {% if user.is_authenticated %}
-                    <th scope="col">Data Wypożyczenia</th>
-                    <th scope="col">Osoba Wypożyczająca</th>
+                    <th scope="col" class="text-center">Data Wypożyczenia</th>
+                    <th scope="col" class="text-center">Osoba Wypożyczająca</th>
                 {% else %}
-                    <th scope="col">Wypożyczona</th>
+                    <th scope="col" class="text-center" width="10%">Wypożyczona</th>
                 {% endif %}
-                <th scope="col">Uwagi</th>
+                <th scope="col" class="text-center" width="30%">Uwagi</th>
             </tr>
         </thead>
         <tbody class="table-group-divider">
-            {% for book in books %}
+            {% for book in list_book %}
                 <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
+                    <th scope="row">{{ book.id }}</th>
                     <td>{{ book.title }}</td>
                     <td>{{ book.author }}</td>
-                    <td>{{ book.location }}</td>
-                    <td>{{ book.category.all|join:'-' }}</td>
+                    <td class="text-center">{{ book.location }}</td>
+                    <td class="text-center">{{ book.category.all|join:'-' }}</td>
                     {% if user.is_authenticated %}
                     <td>
                         {% if book.borrow_date %}
@@ -42,7 +42,7 @@
                         {% endif %}
                     </td>
                     {% else %}
-                    <td>
+                    <td class="text-center">
                         {% if book.borrower or book.borrow_date %}
                             Tak
                         {% endif %}
@@ -52,6 +52,27 @@
                 </tr>
             {% endfor %}
         </tbody>
+        <caption>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if list_book.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">&laquo</a>
+                        </li>
+                    {% endif %}
+                    {% for i in nums %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if list_book.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ list_book.paginator.num_pages }}">&raquo</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </caption>
     </table>
     {% else %}
         <p> Brak książek na liście. </p>
