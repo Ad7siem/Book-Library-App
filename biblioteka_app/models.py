@@ -31,5 +31,29 @@ class ListBook(models.Model):
         return self.title
     
 
-    
+class ListPhoto(models.Model):
+    name = models.CharField(max_length=50, blank=False)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='', blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
+
+class OpeningHours(models.Model):
+    DAY_CHOICES = (
+        ('Poniedziałek', 'Mon'),
+        ('Wtorek', 'Tue'),
+        ('Środa', 'Wed'),
+        ('Czwartek', 'Thu'),
+        ('Piątek', 'Fri'),
+        ('Sobota', 'Sat'),
+        ('Niedziela', 'Sun'),
+    )
+    day = models.CharField(max_length=15, choices=DAY_CHOICES, unique=True)
+    opening_time = models.TimeField(blank=True, null=True)
+    closing_time = models.TimeField(blank=True, null=True)
+
+    def __str__(self):
+        return self.day

@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <style>
+        .card {
+            padding: 15px;
+        }
+        .list-header {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-bottom: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        hr {
+            margin: 20px;
+        }
+        .form-control {
+            margin-bottom: 10px;
+        }
+        .card-header {
+            margin: 0px 6px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .btn-close[aria-label="Close"]::before {
+            color: #f8f9fa !important;
+        }
+        .custom-file-input {
+            color: #fff;
+            background-color: red;
+            border-color: gray;
+          }
+          .custom-file-input:focus {
+            border-color: green;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,.075), 0 0 5px rgba(0,128,0,.6);
+          }
+    </style>
+</head>
+<body>
+    <h1 class="text-center">
+        User Web
+    </h1>
+    <!-- Creating first line -->
+    <div class="row">
+        <!-- Creating left column -->
+        <div class="col-6">
+            <!-- Info of entire library -->
+            <div class="card">
+                <div class="card-header">
+                    Lista Książek
+                </div>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Wszystkie
+                            </div>
+                            Ilość książek znajdujących się w bibliotece
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ all_books_len }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Wypożyczone
+                            </div>
+                            Ilość książek wypożyczonych z bibliotece
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ borrowed_books_count }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Uwagi
+                            </div>
+                            Ilość książek posiadających uwagii
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ note_books_count }}</span>
+                    </li>
+                </ol>
+                <hr>
+                <div class="card-header">
+                    Kategorie
+                </div>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Wszystkie
+                            </div>
+                            Ilość Kategorii Książek
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ all_categories_len }}</span>
+                    </li>
+                </ol>
+                <hr>
+                <div class="card-header">
+                    Osoby
+                </div>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Wszystkie
+                            </div>
+                            Ilość osób wypożyczających
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ all_peoples_len }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Uwagi
+                            </div>
+                            Ilość osób posiadających uwagii
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ note_peoples_count }}</span>
+                    </li>
+                </ol>
+                <hr>
+                <div class="card-header">
+                    Zdjęcia
+                </div>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                Wszystkie
+                            </div>
+                            Ilość zdjęć w bazie danych
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ all_photo_len }}</span>
+                    </li>
+                </ol>
+                <hr>
+                <div class="card-header">
+                    Ilość zajętego miejsca na dysku
+                </div>
+                <div class="progress mt-2" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: {{ memory }}%">{{ memory|floatformat:2 }}%</div>
+                </div>
+            </div>
+        </div>
+        <!-- Creating rigth column ... -->
+        <div class="col-6">
+            <!-- Upload image to Base List all images -->
+            <div class="card">
+                <div class="mb-3 d-flex justify-content-between">
+                    <label for="formFile" class="form-label ">
+                        Pobierz zdjęcie do listy zdjęć
+                    </label>
+                    <button class="btn btn-outline-primary ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#helpImage" aria-expanded="false" aria-controls="helpImage">
+                        Pomoc
+                    </button>  
+                </div>
+                <button type="button" class="btn btn-outline-success mb-2" data-bs-toggle="modal" data-bs-target="#photoAdd">
+                    Dodaj obraz
+                </button>
+                <!-- Modal Add Photo-->
+                <div class="modal fade" id="photoAdd" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="photoAddLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-dark text-secondary">
+                                <h1 class="modal-title fs-5" id="photoAddLabel">Dodawanie Obrazu</h1>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="" method=POST enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    {{ form.as_p }}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cofnij</button>
+                                    <input type="submit" value="Zapisz" class="btn btn-secondary">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse" id="helpImage">
+                    <div class="card card-body">
+                        <li>W tym miejscu jedynie dodajesz zdjęcie do listy wszystkich zdjęć na serwerze. Aby ustawić je w odpowiednie miejsce musisz przejść do opcji niżej.</li></br>
+                        <li>Przy wypełnieniu formularza musisz nadać nazwę i wybrać plik. Opis nie jest obowiązkowy, będzie on widoczny po najechaniu myszką na obrazek.</li>
+                    </div>
+                </div>
+            </div>
+            <!-- Show all images of the Base List all images -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    Lista zdjęć
+                </div>
+                <div class="card-body">
+                    <div class="row row-cols-3 g-3">
+                        {% for img in photo %}
+                            <div class="col">
+                                <div class="card h-100">
+                                    <img src="{{ img.image.url }}" class="card-img-top" alt="{{ img.name }}">
+                                    <div class="card-body">
+                                        <span class="card-title">{{ img.name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="row mt-3">
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="image">Wybierz zdjęcie</label>
+                                <select class="form-control" id="image" name="image">
+                                    {% for image in photo %}
+                                        <option value="{{ image.image.url }}">{{ image.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-outline-secondary" formaction="{% url 'set-image' %}">
+                                    Ustaw zdjęcie
+                                </button>
+                                <button type="submit" class="btn btn-outline-warning" formaction="{% url 'delete-image' %}">
+                                    Usuń
+                                </button>
+                                <button class="btn btn-outline-primary ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#helpSetImage" aria-expanded="false" aria-controls="helpSetImage">
+                                    Pomoc
+                                </button>
+                            </div>
+                        </form>
+                        <div class="collapse mt-2" id="helpSetImage">
+                            <div class="card card-body">
+                                <li></li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Placing a quote on the main page -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    Cytat
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'set-quote' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="" id="quote" name="quote">{{ quote }}</textarea>
+                                <label for="quote">Cytat</label>
+                            </div>
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="" id="author" name="author">{{ author }}</textarea>
+                                <label for="author">Autor</label>
+                            </div>
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="" id="source_quote" name="source_quote">{{ source_quote }}</textarea>
+                                <label for="source_quote">Źródło</label>
+                            </div>
+                            <div class="d-flex justify-content-bet">
+                                <button type='submit' class="btn btn-outline-secondary" formaction="{% url 'set-quote' %}">
+                                    Ustaw Cytat
+                                </button>
+                                <button class="btn btn-outline-primary ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#helpQuote" aria-expanded="false" aria-controls="helpQuote">
+                                    Pomoc
+                                </button>  
+                            </div>
+                        </div>
+                    </form>
+                    <div class="collapse mt-2" id="helpQuote">
+                        <div class="card card-body">
+                            <li>W przypadku gdy pole cytat zostanie ustawione jako puste, ramka z cytatem na głównej stronie nie będzie widoczna.</li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <!-- Creating second line -->
+    <div class="row mb-5">
+        <!-- Left Column -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    Informacje o bibliotece. 
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'set-info-web' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="" id="info_web" name="info_web" style="height: 100px;">{{ info_web }}</textarea>
+                                <label for="info_web">Info o stronie</label>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-outline-secondary">Ustaw</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-header">
+                    Godziny otwarcia 
+                </div>
+                <form method='post'>
+                    {% csrf_token %}
+                    {% for open in open_hours %}
+                        <div class="card card-body m-2">
+                            <div class="row">
+                                <div class="col-3">
+                                    {{ open.day }}
+                                </div>
+                                <div class="col-3">
+                                    {{ form_openingHours.opening_time }}
+                                </div>
+                                <div class="col-3">
+                                    {{ form_openingHours.closing_time }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div>
+                        <button type="submit" class="btn btn-outline-secondary">Ustaw</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Right Column -->
+        <div class="col-6">
+            <div class="card">
+                Inne opcje
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}

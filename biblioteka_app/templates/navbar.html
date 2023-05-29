@@ -34,7 +34,7 @@
                 <li><hr class="dropdown-divider" style="border-left: 1px solid gray; height:100%; top:0;"></li>
             </li>
             <li class="nav-item">
-                <a class="nav-link">Witaj! {{ user.username|capfirst }}</a>
+                <a class="nav-link" href="{% url 'user-web' %}">Witaj! {{ user.username|capfirst }}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>

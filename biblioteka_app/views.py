@@ -3,19 +3,50 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 from django.db.models import Q
-from .models import ListBook, ListPeople, ListBookCategory
-from .forms import ListBookForm, ListPeopleForm, ListBookCategoryForm
-import csv, io
+from .models import ListBook, ListPeople, ListBookCategory, ListPhoto, OpeningHours
+from .forms import ListBookForm, ListPeopleForm, ListBookCategoryForm, ListPhotoForm, OpeningHoursForm
+import csv, io, os
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
 
 from django.utils.encoding import smart_str
 from django.core.paginator import Paginator
+from django.conf import settings
+from django.urls import reverse
 
+from shutil import disk_usage
+from psutil import virtual_memory
+
+
+########################### HOME ###########################
 ### Create Home Page
 def home(request):
-    return render(request, 'home.html', {})
+    #
+    recently_added_books = ListBook.objects.order_by('-id')[:10]
+    open_hours = OpeningHours.objects.filter(opening_time__isnull=False, closing_time__isnull=False)
+    #
+    all_books_len = len(ListBook.objects.all())
+    borrowed_books_count = ListBook.objects.filter(borrow_date__isnull=False).count()
+    #
+    image_path = request.session.get('image_path', os.path.join(settings.MEDIA_ROOT, 'librery.jpg'))
+    quote = request.session.get('quote', "Lepiej zaliczać się do niektórych, niż do wszystkich.")
+    author = request.session.get('author', "Andrzej Sapkowski")
+    source_quote = request.session.get('source_quote', "Krew Elfów")
+    info_web = request.session.get('info_web', "Bla bla bla!! Witam wszystkich na stronie biblioteki. Mam nadzieje, że bedzie łatwa w obsłudzę. Wszystko się znajdzie przy pomocy wyszukiwarki. Dodatkowo można zobaczyć jakię są ostatnio nowe książki dodane.")
+
+    return render(request, 'home.html', 
+                {
+                    'recently_added_books': recently_added_books,
+                    'all_books_len': all_books_len,
+                    'borrowed_books_count': borrowed_books_count,
+                    'image_path': image_path,
+                    'quote': quote,
+                    'author': author,
+                    'source_quote': source_quote,
+                    'info_web': info_web,
+                    'open_hours': open_hours,
+                })
 
 ########################### USER ###########################
 ### Create Login
@@ -39,6 +70,158 @@ def logout_user(request):
     logout(request)
     messages.success(request, ("Wylogowano!"))
     return redirect('home')
+
+### Create User Web
+def user_web(request):
+    #
+    all_books_len = len(ListBook.objects.all())
+    all_categories_len = len(ListBookCategory.objects.all())
+    all_peoples_len = len(ListPeople.objects.all())
+    all_photo_len = len(ListPhoto.objects.all())
+    borrowed_books_count = ListBook.objects.filter(borrow_date__isnull=False).count()
+    note_books_count = ListBook.objects.filter(notes__isnull=True).count()
+    note_peoples_count = ListPeople.objects.filter(note__isnull=True).count()
+    #
+    photo = ListPhoto.objects.all()
+    open_hours = OpeningHours.objects.all()
+    #
+    quote = request.session.get('quote', "Lepiej zaliczać się do niektórych, niż do wszystkich.")
+    author = request.session.get('author', "Andrzej Sapkowski")
+    source_quote = request.session.get('source_quote', "Krew Elfów")
+    info_web = request.session.get('info_web', "Witam wszystkich na stronie biblioteki. Mam nadzieje, że bedzie łatwa w obsłudzę. Wszystko się znajdzie przy pomocy wyszukiwarki. Dodatkowo można zobaczyć jakię są ostatnio nowe książki dodane.")
+
+
+    #
+    images = []
+    for file in os.listdir('static'):
+        if file.endswith('.jpg') or file.endswith('.jpeg') or file.endswith('.png'):
+            images.append(file)
+
+    #
+    if request.method == "POST":
+        form = ListPhotoForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, ("Zdjęcie zostało dodane"))
+            return redirect('user-web')
+        else:
+            messages.success(request, (f"Błąd ładowania pliku - {form.errors}"))
+    else:
+        form = ListPhotoForm()
+
+    #
+    formset = []
+    for open_hour in open_hours:
+        form_opening_hours = OpeningHoursForm(instance=open_hour)
+        formset.append((open_hour, form_opening_hours))
+    if request.method == "POST":
+        for open_hour, form_opening_hours in formset:
+            form_opening_hours = OpeningHoursForm(request.POST, instance=open_hour)
+            if form_opening_hours.is_valid():
+                form_opening_hours.save()
+                messages.success(request, ("Godziny zostały ustawione"))
+                return redirect('home')
+            else:
+                messages.success(request, (f"Błąd ustawiania godzin - {form_opening_hours.errors}"))
+    else:
+        form_opening_hours = OpeningHoursForm()
+
+
+    if request.method == "POST":
+        form_openingHours = OpeningHoursForm(instance=open_hours)
+        if form_openingHours.is_valid():
+            form_openingHours.save()
+            messages.success(request, ("Godziny zostały ustawione"))
+            return redirect('user-web')
+        else:
+            messages.success(request, ('Błąd'))
+    else:
+        form_openingHours = OpeningHoursForm()
+    #
+    total, used, free = disk_usage('/')
+
+    #
+    return render(request, 'admin.html', 
+                {
+                    'all_books_len': all_books_len,
+                    'all_categories_len': all_categories_len,
+                    'all_peoples_len': all_peoples_len,
+                    'all_photo_len': all_photo_len,
+                    'borrowed_books_count': borrowed_books_count,
+                    'note_books_count': note_books_count,
+                    'note_peoples_count': note_peoples_count,
+                    'images': images,
+                    'form': form,
+                    'form_openingHours': form_opening_hours,
+                    'photo': photo,
+                    'open_hours': open_hours,
+                    'quote': quote,
+                    'author': author,
+                    'source_quote': source_quote,
+                    'info_web': info_web,
+                    'memory': used / total * 100,
+                })
+
+### Handle image path in session
+def set_image(request):
+    #
+    if request.method == "POST":
+        #
+        image_url = request.POST.get('image')
+        request.session['image_path'] = image_url
+        #
+        return redirect('home')
+    else:
+        return HttpResponse('Invalid request method')
+
+###  
+def set_quote(request):
+    #
+    if request.method == "POST":
+        #
+        quote = request.POST.get('quote')
+        request.session['quote'] = quote
+        author = request.POST.get('author')
+        request.session['author'] = author
+        source_quote = request.POST.get('source_quote')
+        request.session['source_quote'] = source_quote
+        #
+        return redirect('home')
+    else:
+        return HttpResponse('Invalid request method')
+    
+###
+def set_info_web(request):
+    #
+    if request.method == "POST":
+        #
+        info_web = request.POST.get('info_web')
+        request.session['info_web'] = info_web
+        #
+        return redirect('home')
+    else:
+        return HttpResponse('Invalid request method')
+    
+###
+def delete_image(request):
+    if request.method == "POST":
+        #
+        name_url = request.POST.get('image')
+        name = os.path.basename(name_url)
+        #
+        delete_photo = ListPhoto.objects.filter(image=name)
+        delete_photo.delete()
+        #
+        delete_path = os.path.join(settings.MEDIA_ROOT, name)
+        if os.path.exists(delete_path):
+            os.remove(delete_path)
+        else:
+            messages.success(request, (f"Plik {name} nie istenieje, a tak wygląda ścieżka do pliku - {delete_path}"))
+        #
+        return redirect('user-web')
+    else:
+        return HttpResponse('Bład')
+
 
 ########################### BOOK LIST ###########################
 ### Show Book List

@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -25,4 +27,10 @@ urlpatterns = [
     path('search_books_admin/', views.search_book_admin, name='search-book-admin'),
     path('search_peoples_admin/', views.search_people_admin, name='search-peoples-admin'),
     path('search_categories_admin/', views.search_categories_admin, name="search-categories-admin"),
-]
+    path('user_web/', views.user_web, name='user-web'),
+    path('set_image/', views.set_image, name='set-image'),
+    # path('add_image/', views.add_image, name='add-image'),
+    path('delete_image/', views.delete_image, name='delete-image'),
+    path('set_quote/', views.set_quote, name='set-quote'),
+    path('set_info_web/', views.set_info_web, name="set-info-web"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

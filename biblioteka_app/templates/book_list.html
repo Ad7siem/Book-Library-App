@@ -45,6 +45,8 @@
                     <td class="text-center">
                         {% if book.borrower or book.borrow_date %}
                             Tak
+                        {% else %}
+                            -
                         {% endif %}
                     </td>
                     {% endif %}
